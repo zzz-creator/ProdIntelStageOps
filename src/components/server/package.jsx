@@ -1,0 +1,27 @@
+{
+  "name": "prodintel-backend",
+  "version": "1.0.0",
+  "description": "ProdIntel StageOps – Offline Backend Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:setup": "psql -U $DB_USER -d $DB_NAME -f schema.sql",
+    "db:create": "createdb -U postgres prodintel"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
