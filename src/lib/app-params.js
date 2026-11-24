@@ -1,54 +1,39 @@
-const isNode = typeof window === 'undefined';
-const windowObj = isNode ? { localStorage: new Map() } : window;
-const storage = windowObj.localStorage;
-
-const toSnakeCase = (str) => {
-	return str.replace(/([A-Z])/g, '_$1').toLowerCase();
-}
-
-const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl = false } = {}) => {
-	if (isNode) {
-		return defaultValue;
-	}
-	const storageKey = `base44_${toSnakeCase(paramName)}`;
-	const urlParams = new URLSearchParams(window.location.search);
-	const searchParam = urlParams.get(paramName);
-	if (removeFromUrl) {
-		urlParams.delete(paramName);
-		const newUrl = `${window.location.pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ""
-			}${window.location.hash}`;
-		window.history.replaceState({}, document.title, newUrl);
-	}
-	if (searchParam) {
-		storage.setItem(storageKey, searchParam);
-		return searchParam;
-	}
-	if (defaultValue) {
-		storage.setItem(storageKey, defaultValue);
-		return defaultValue;
-	}
-	const storedValue = storage.getItem(storageKey);
-	if (storedValue) {
-		return storedValue;
-	}
-	return null;
-}
-
-const getAppParams = () => {
-	if (getAppParamValue("clear_access_token") === 'true') {
-		storage.removeItem('base44_access_token');
-		storage.removeItem('token');
-	}
-	return {
-		appId: getAppParamValue("app_id", { defaultValue: import.meta.env.VITE_BASE44_APP_ID }),
-		token: getAppParamValue("access_token", { removeFromUrl: true }),
-		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.href }),
-		functionsVersion: getAppParamValue("functions_version", { defaultValue: import.meta.env.VITE_BASE44_FUNCTIONS_VERSION }),
-		appBaseUrl: getAppParamValue("app_base_url", { defaultValue: import.meta.env.VITE_BASE44_APP_BASE_URL }),
-	}
-}
-
+// Replaced during Base44 → Supabase migration by staticbot.
+// The base44 client (src/api/base44Client) is now backed by the Supabase-compatible shim.
+// This module used to read VITE_BASE44_* env vars — those are no longer set. Any code that
+// still imports `appParams` gets an inert object rather than silently-undefined fields.
+//
+// `token` is the signed-in user's Supabase access token (null when signed out), read live
+// from the Supabase session in localStorage: Base44's AuthContext only checks the session
+// when `appParams.token` is set, so a constant null would keep every user logged out.
+const readSupabaseAccessToken = () => {
+  try {
+    // Inside the try: reading window.localStorage itself throws when the browser blocks storage.
+    const storage = typeof window === 'undefined' ? null : window.localStorage;
+    if (!storage) return null;
+    for (let i = 0; i < storage.length; i++) {
+      const key = storage.key(i);
+      if (!key || !/^sb-.+-auth-token$/.test(key)) continue;
+      const session = JSON.parse(storage.getItem(key) || 'null');
+      if (session && typeof session.access_token === 'string') return session.access_token;
+    }
+  } catch {
+    // Storage blocked or unparseable: treat as signed out.
+  }
+  return null;
+};
 
 export const appParams = {
-	...getAppParams()
+  appId: null,
+  get token() {
+    return readSupabaseAccessToken();
+  },
+  functionsVersion: null,
+  appBaseUrl: null,
+  fromUrl: typeof window === 'undefined' ? null : window.location.href,
+};
+
+// Base44's TanStack Start scaffold reads the same values through getAppParams().
+export function getAppParams() {
+  return { appId: null, token: appParams.token, functionsVersion: null, appBaseUrl: null };
 }
