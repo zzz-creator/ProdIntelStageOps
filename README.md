@@ -1,39 +1,33 @@
-**Welcome to your Base44 project** 
+# ProdIntelStageOps
 
-**About**
+ProdIntelStageOps supports production and stage operations, including
+productions, crew assignments and directories, equipment, venues, schedules,
+incidents, procedures, and reports.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## Required backend
 
-This project contains everything you need to run your app locally.
+This app requires the main [Base44 Supabase Setup](https://github.com/zzz-creator/base44-supabase-setup)
+repository to run its self-hosted Supabase backend. Do not clone this app alone
+when setting up a new environment; clone the main repository with its
+submodules:
 
-**Edit the code in your local development environment**
-
-Any change pushed to the repo will also be reflected in the Base44 Builder.
-
-**Prerequisites:** 
-
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
-
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+```sh
+git clone --recurse-submodules https://github.com/zzz-creator/base44-supabase-setup.git
 ```
 
-Run the app: `npm run dev`
+Follow the main repository's [fresh setup instructions](https://github.com/zzz-creator/base44-supabase-setup#fresh-setup)
+to configure and start Supabase. Create this app's `.env.local` with
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from that backend. For a
+local stack, the URL is typically `http://localhost:8000`. Use only the public
+anon key in the frontend, never the service-role key.
 
-**Publish your changes**
+## Run locally
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+From the `ProdIntelStageOps` directory:
 
-**Docs & Support**
+```sh
+npm install
+npm run dev
+```
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+Available checks: `npm run lint`, `npm run typecheck`, and `npm run build`.
